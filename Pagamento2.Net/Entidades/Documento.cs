@@ -1,4 +1,5 @@
-﻿using Pagamento2.Net.Enums;
+﻿using Pagamento2.Net.Entidades;
+using Pagamento2.Net.Enums;
 using Pagamento2Net.Enums;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,12 @@ namespace Pagamento2Net.Entidades
         /// <summary>
         ///
         /// </summary>
-        public TipoPagamentoEnum TipoDePagamento { get; protected set; }
+        public TipoPagamentoEnum TipoDePagamento { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public TipoServiçoEnum TipoDeServiço { get; set; }
 
         /// <summary>
         /// Número de Documento Cliente (Seu Número)
@@ -38,7 +44,7 @@ namespace Pagamento2Net.Entidades
         /// <summary>
         ///
         /// </summary>
-        //public DateTime DataDoVencimento { get; set; }
+        public DateTime DataDoVencimento { get; set; }
 
         /// <summary>
         ///
@@ -53,10 +59,62 @@ namespace Pagamento2Net.Entidades
         public decimal ValorDoPagamento { get; set; }
 
         /// <summary>
+        ///
+        /// </summary>
+        [Required]
+        public decimal ValorDoDocumento { get; set; }
+
+        /// <summary>
         /// Código das Ocorrências para Retorno.
         /// Código adotado para identificar as ocorrências detectadas no processamento.
         /// Pode-se informar até 5 ocorrências simultaneamente, cada uma delas codificada com dois dígitos
         /// </summary>
         public IList<Ocorrência> OcorrênciasParaRetorno { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public Favorecido Favorecido { get; set; }
+
+        /// <summary>
+        /// Código para identificar emissão de aviso de pagamento (comprovante) ao Favorecido (em endereço especificado no segmento B) ou Remetente.
+        /// 0 = Não Emite Aviso
+        /// 2 = Emite Aviso Somente para o Remetente
+        /// 5 = Emite Aviso Somente para o Favorecido
+        /// 6 = Emite Aviso para o Remetente e Favorecido
+        /// </summary>
+        public string AvisoAoFavorecido { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal ValorDoDesconto { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal ValorDoAbatimento { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal ValorDaMulta { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public decimal ValorDaMora { get; set; }
+
+        /// <summary>
+        /// Código do histórico para crédito na conta do favorecido (somente para Crédito em Conta Corrente ou Crédito em Conta Poupança).
+        /// Necessário que o convênio esteja com a opção de “Histórico do Arquivo” ativada.
+        /// Caso campo seja enviado com zeros, será adotada a opção default cadastrada no convênio.
+        /// </summary>
+        public int CódigoHistórico { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string CódigoDeBarras { get; set; }
     }
 }

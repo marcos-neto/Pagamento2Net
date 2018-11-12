@@ -1,4 +1,5 @@
-﻿using Pagamento2.Net.Enums;
+﻿using Pagamento2.Net.Entidades;
+using Pagamento2.Net.Enums;
 using Pagamento2Net.Enums;
 using System;
 
@@ -10,16 +11,6 @@ namespace Pagamento2Net.Entidades
     /// </summary>
     public class Transferência : Documento
     {
-        ///// <summary>
-        ///// Finalidade do DOC/TED
-        ///// </summary>
-        //public FinalityEnum Finalidade { get; set; }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        //public string AvisoAoFavorecido { get; set; }
-
         /// <summary>
         /// Código da Câmara Centralizadora
         /// </summary>
@@ -83,11 +74,6 @@ namespace Pagamento2Net.Entidades
         /// <summary>
         ///
         /// </summary>
-        public Pessoa Favorecido { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
         public DateTime DataRealDoPagamento { get; set; }
 
         /// <summary>
@@ -111,26 +97,6 @@ namespace Pagamento2Net.Entidades
         /// Finalidade DOC e TED
         /// </summary>
         public FinalidadeEnum FinalidadeDocTed { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public decimal ValorDoAbatimento { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public decimal ValorDoDesconto { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public decimal ValorDaMora { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public decimal ValorDaMulta { get; set; }
 
         public Transferência()
         {

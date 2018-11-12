@@ -1,4 +1,5 @@
 ﻿using Boleto2Net.Util;
+using Pagamento2.Net.Enums;
 using Pagamento2Net;
 using Pagamento2Net.Bancos;
 using Pagamento2Net.Entidades;
@@ -26,24 +27,45 @@ namespace Boleto2Net
             TipoArquivo = tipoArquivo;
         }
 
-        private void Initialize(Pagamento pagamento)
+        private void Initialize(StreamReader file)
         {
             try
             {
-                string bankCode;
-                bankCode = pagamento.Pagador.ContaFinanceira.Banco;
+                string códigoDoBanco = "";
 
-                switch (bankCode)
+                var registro = file.ReadLine();
+
+                switch (registro.Length)
+                {
+                    case 240:
+                        TipoArquivo = TipoArquivo.CNAB240;
+                        códigoDoBanco = registro.Substring(0, 3);
+                        break;
+                    case 400:
+                        TipoArquivo = TipoArquivo.CNAB400;
+                        códigoDoBanco = registro.Substring(76, 3);
+                        break;
+                    case 500:
+                        TipoArquivo = TipoArquivo.POS500;
+                        códigoDoBanco = "237";
+                        break;
+                    default:
+                        throw new Exception("Layout nao implementado.");
+                }
+
+                switch (códigoDoBanco)
                 {
                     case "033":
-                        TipoArquivo = TipoArquivo.CNAB240;
                         Banco = new BancoSantander();
+                        break;
+
+                    case "237":
+                        Banco = new BancoBradesco();
                         break;
 
                     case "001":
                     case "041":
                     case "104":
-                    case "237":
                     case "341":
                     case "756":
                     default:
@@ -56,30 +78,20 @@ namespace Boleto2Net
             }
         }
 
-        private void LerArquivoRetorno2(Stream fileStream)
+        private Pagamento LerArquivoRetorno(Stream fileStream)
         {
-            Pagamento pagamento = null;
+            Pagamento pagamento = new Pagamento();
 
             // Ao percorrer o arquivo, armazena qual o tipo de serviço do lote atual, para setar nos documentos subsequentes.
-            ServiceTypeEnum? currentServiceType = null;
+            TipoServiçoEnum? currentServiceType = null;
             try
             {
                 using (StreamReader arquivo = new StreamReader((Stream)fileStream, System.Text.Encoding.UTF8))
                 {
-                    if (arquivo.EndOfStream)
-                        return;
+                    Initialize(arquivo);
 
                     //busca o primeiro registro do arquivo
                     var registro = arquivo.ReadLine();
-
-                    //atribui o tipo de acordo com o conteúdo do arquivo
-                    TipoArquivo = registro.Length == 240 ? TipoArquivo.CNAB240 : TipoArquivo.CNAB400;
-
-                    if (TipoArquivo == TipoArquivo.CNAB400 && ((IBanco)Banco).IdsRetornoCnab400RegistroDetalhe.Count == 0)
-                        throw new Exception("Banco " + ((IBanco)Banco).Codigo.ToString() + " não implementou os Ids do Registro Retorno do CNAB400.");
-
-                    //instancia o banco de acordo com o código/id do banco presente no arquivo de retorno
-                    Banco = (IRetornoPagamento)Boleto2Net.Banco.Instancia(Utils.ToInt32(registro.Substring(TipoArquivo == TipoArquivo.CNAB240 ? 0 : 76, 3)));
 
                     //define a posicao do reader para o início
                     arquivo.DiscardBufferedData();
@@ -87,85 +99,73 @@ namespace Boleto2Net
 
                     while (!arquivo.EndOfStream)
                     {
-                        // VERSÃO YLEC2403_v7_14/02/2012
                         registro = arquivo.ReadLine();
-                        var tipoRegistro = registro.Substring(7, 1);
-                        var tipoSegmento = registro.Substring(13, 1);
+                        string caracterTipoRegistro;
+                        TipoRegistroEnum tipoRegistro = default(TipoRegistroEnum);
 
-                        // REGISTRO HEADER DE ARQUIVO
-                        if (tipoRegistro == "0")
+                        switch (TipoArquivo)
                         {
-                            Banco.LerHeaderRetornoPagamento(TipoArquivo, ref pagamento, registro);
-                            return;
+                            case TipoArquivo.CNAB240:
+                                caracterTipoRegistro = registro.Substring(7, 1);
+
+                                if (caracterTipoRegistro.Equals("0"))
+                                    tipoRegistro = TipoRegistroEnum.HeaderArquivo;
+                                else if (caracterTipoRegistro.Equals("1"))
+                                    tipoRegistro = TipoRegistroEnum.HeaderLote;
+                                else if (caracterTipoRegistro.Equals("3"))
+                                    tipoRegistro = TipoRegistroEnum.Detalhe;
+                                else if (caracterTipoRegistro.Equals("5"))
+                                    tipoRegistro = TipoRegistroEnum.TrailerLote;
+                                else if (caracterTipoRegistro.Equals("9"))
+                                    tipoRegistro = TipoRegistroEnum.TrailerArquivo;
+                                else
+                                    throw new Exception("Tipo de registro nao implementado - CNAB240");
+                                break;
+
+                            case TipoArquivo.CNAB400:
+                                caracterTipoRegistro = registro.Substring(7, 1);
+                                break;
+
+                            case TipoArquivo.POS500:
+                                caracterTipoRegistro = registro.Substring(0, 1);
+                                if (caracterTipoRegistro.Equals("0"))
+                                    tipoRegistro = TipoRegistroEnum.HeaderArquivo;
+                                else if (caracterTipoRegistro.Equals("1"))
+                                    tipoRegistro = TipoRegistroEnum.Detalhe;
+                                else if (caracterTipoRegistro.Equals("9"))
+                                    tipoRegistro = TipoRegistroEnum.TrailerArquivo;
+                                else
+                                    throw new Exception("Tipo de registro nao implementado - POS500");
+                                break;
+
+                            default:
+                                throw new Exception("Tipo de Arquivo não implementado");
                         }
 
-                        // REGISTRO HEADER DO LOTE
-                        if (tipoRegistro == "1")
+                        switch (tipoRegistro)
                         {
-                            currentServiceType = (ServiceTypeEnum)Enum.Parse(typeof(ServiceTypeEnum), registro.Substring(9, 2));
-                            return;
-                        }
-
-                        // Segmento A - Indica um novo documento
-                        if (tipoRegistro == "3" & tipoSegmento == "A")
-                        {
-                            //var document = arquivoRetorno.PaymentDocuments.Documents.LastOrDefault();
-                            var document = new PaymentDocument();
-
-                            // Se não encontrou um boleto válido, ocorreu algum problema, pois deveria ter criado um novo objeto no registro que foi analisado anteriormente.
-                            if (document == null)
-                                throw new Exception("Objeto documento não identificado");
-
-                            Banco.LerDetalheRetornoPagamento(TipoArquivo, tipoSegmento, ref document, registro);
-                            document.ServiceType = currentServiceType.Value;
-                            Pagamento.Documents.Add(document);
-                            return;
-                        }
-
-                        // Segmento J - Indica um novo documento
-                        if (tipoRegistro == "3" & tipoSegmento == "J")
-                        {
-                            //var document = arquivoRetorno.PaymentDocuments.Documents.LastOrDefault();
-                            var document = new PaymentDocument();
-
-                            // Se não encontrou um boleto válido, ocorreu algum problema, pois deveria ter criado um novo objeto no registro que foi analisado anteriormente.
-                            if (document == null)
-                                throw new Exception("Objeto documento não identificado");
-
-                            Banco.LerDetalheRetornoPagamento(TipoArquivo, tipoSegmento, ref document, registro);
-                            document.ServiceType = currentServiceType.Value;
-                            Pagamento.Documents.Add(document);
-                            return;
-                        }
-
-                        // Segmento B - Continuação do segmento A ou J anterior
-                        if (tipoRegistro == "3" & tipoSegmento == "B")
-                        {
-                            // localiza o último boleto da lista
-                            var document = Pagamento.Documents.LastOrDefault();
-
-                            // Se não encontrou um boleto válido, ocorreu algum problema, pois deveria ter criado um novo objeto no registro que foi analisado anteriormente.
-                            if (document == null)
-                                throw new Exception("Objeto documento não identificado");
-
-                            Banco.LerDetalheRetornoPagamento(TipoArquivo, tipoSegmento, ref document, registro);
-                            document.ServiceType = currentServiceType.Value;
-                            return;
-                        }
-
-                        // REGISTRO TRAILER DE LOTE
-                        if (tipoRegistro == "5")
-                        {
-                            // não precisa ler
-                        }
-
-                        // REGISTRO TRAILER DE ARQUIVO
-                        if (tipoRegistro == "9")
-                        {
-                            // não precisa ler
+                            case TipoRegistroEnum.HeaderArquivo:
+                                Banco.LerHeaderRetornoPagamento(TipoArquivo, ref pagamento, registro, ref currentServiceType);
+                                break;
+                            case TipoRegistroEnum.HeaderLote:
+                                Banco.LerHeaderLoteRetornoPagamento(TipoArquivo, ref pagamento, registro, ref currentServiceType);
+                                break;
+                            case TipoRegistroEnum.Detalhe:
+                                Banco.LerDetalheRetornoPagamento(TipoArquivo, ref pagamento, registro, ref currentServiceType);
+                                break;
+                            case TipoRegistroEnum.TrailerLote:
+                                Banco.LerTrailerLoteRetornoPagamento(TipoArquivo, ref pagamento, registro, ref currentServiceType);
+                                break;
+                            case TipoRegistroEnum.TrailerArquivo:
+                                Banco.LerTrailerRetornoPagamento(TipoArquivo, ref pagamento, registro, ref currentServiceType);
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
+
+                return pagamento;
             }
             catch (Exception ex)
             {
@@ -238,10 +238,10 @@ namespace Boleto2Net
         //    }
         //}
 
-        public PaymentDocuments ParseFile(byte[] contents)
+        public Pagamento ParseFile(byte[] contents)
         {
             MemoryStream stream = new MemoryStream(contents);
-            LerArquivoRetorno2(stream);
+            LerArquivoRetorno(stream);
 
             return Pagamento;
         }

@@ -88,9 +88,9 @@ namespace Boleto2Net
                     pagamento.Pagador,
                     pagamento.NúmeroRemessa,
                     ref numeroRegistrosGeral
-                ));
+                    ));
 
-            // agrupa os registros por forma de lancamento (PaymentType)
+            // agrupa os registros por forma de lancamento (TipoDePagamento)
             var lotes = from d in pagamento.Documentos
                         group d by d.TipoDePagamento into g
                         select new
@@ -107,14 +107,17 @@ namespace Boleto2Net
                 valorTotalRegistrosLote = 0;
 
                 //geração do header dos lotes
-                arquivoRemessa.WriteLine(Banco.GerarHeaderLoteRemessaPagamento(
-                    tipoArquivo: TipoArquivo,
-                    payee: pagamento.Pagador,
-                    paymentType: lote.TipoPagamento,
-                    loteServico: ref loteDeServico,
-                    tipoServico: ((int)lote.Documentos.First().ServiceType).ToString(),
-                    numeroArquivoRemessa: NumeroArquivoRemessa,
-                    numeroRegistroGeral: ref numeroRegistrosGeral));
+                arquivoRemessa.WriteLine(
+                    Banco.GerarHeaderLoteRemessaPagamento(
+                        tipoArquivo: TipoArquivo,
+                        pagador: pagamento.Pagador,
+                        tipoPagamento: lote.TipoPagamento,
+                        loteServico: ref loteDeServico,
+                        tipoServico: ((int)lote.Documentos.First().TipoDeServiço).ToString(),
+                        numeroArquivoRemessa: NumeroArquivoRemessa,
+                        numeroRegistroGeral: ref numeroRegistrosGeral,
+                        numeroRegistrosLote: ref numeroRegistrosLote
+                        ));
 
                 foreach (Documento documento in lote.Documentos)
                 {

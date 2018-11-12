@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Pagamento2.Net.Entidades;
+using Pagamento2.Net.Enums;
+using Pagamento2Net.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -85,7 +88,7 @@ namespace Pagamento2Net.Entidades
         /// Favorecido ou Cedente ou Fornecedor
         /// </summary>
         [Required]
-        public Person Favorecido { get; set; } = new Person();
+        public Favorecido Favorecido { get; set; } = new Favorecido();
 
         /// <summary>
         ///
@@ -110,12 +113,12 @@ namespace Pagamento2Net.Entidades
         /// <summary>
         ///
         /// </summary>
-        public MovementInstructionEnum CódigoDaInstruçãoParaMovimento { get; set; }
+        public InstruçãoMovimentoEnum CódigoDaInstruçãoParaMovimento { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        public MovementTypeEnum TipoDeMovimento { get; set; }
+        public TipoMovimentoEnum TipoDeMovimento { get; set; }
 
         /// <summary>
         ///
@@ -150,7 +153,7 @@ namespace Pagamento2Net.Entidades
         /// <summary>
         ///
         /// </summary>
-        public PaymentTypeEnum TipoDePagamento { get; set; }
+        public TipoPagamentoEnum TipoDePagamento { get; set; }
 
         /// <summary>
         ///
@@ -185,7 +188,7 @@ namespace Pagamento2Net.Entidades
         /// <summary>
         ///
         /// </summary>
-        public IList<Occurrence> OcorrenciasRetorno { get; set; }
+        public IList<Ocorrência> OcorrenciasRetorno { get; set; }
 
         /// <summary>
         ///
@@ -195,7 +198,7 @@ namespace Pagamento2Net.Entidades
         /// <summary>
         ///
         /// </summary>
-        public ServiceTypeEnum TipoServiço { get; set; }
+        public TipoServiçoEnum TipoServiço { get; set; }
 
         /// <summary>
         ///

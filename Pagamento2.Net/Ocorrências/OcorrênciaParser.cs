@@ -14,7 +14,7 @@ namespace Pagamento2Net
             }
             else
             {
-                return new FebrabanOccurrences().Parse(código);
+                return new OcorrênciasFebraban().Parse(código);
             }
         }
     }
