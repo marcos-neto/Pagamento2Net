@@ -1,8 +1,7 @@
 ﻿using Boleto2Net.Util;
 using Pagamento2.Net.Entidades;
-using Pagamento2.Net.Enums;
-using Pagamento2Net.Entidades;
 using Pagamento2Net.Enums;
+using Pagamento2Net.Entidades;
 using Pagamento2Net.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -36,7 +35,7 @@ namespace Pagamento2Net.Bancos
                         break;
 
                     default:
-                        throw new Exception("Santander - Header - Tipo de arquivo inexistente.");
+                        throw new Exception("Bradesco - Header - Tipo de arquivo inexistente.");
                 }
 
                 if (String.IsNullOrWhiteSpace(header))
@@ -91,7 +90,7 @@ namespace Pagamento2Net.Bancos
                         break;
 
                     default:
-                        throw new Exception("Santander - Header Lote - Tipo de arquivo inexistente.");
+                        throw new Exception("Bradesco - Header Lote - Tipo de arquivo inexistente.");
                 }
                 if (String.IsNullOrWhiteSpace(strline))
                 {
@@ -102,7 +101,7 @@ namespace Pagamento2Net.Bancos
             }
             catch (Exception ex)
             {
-                throw Pagamento2NetException.ErroAoGerarRegistroHeaderLoteDoArquivoRemessa(ex);
+                throw Pagamento2NetException.ErroAoGerarRegistroDetalheDoArquivoRemessa(ex);
             }
         }
 
@@ -141,7 +140,7 @@ namespace Pagamento2Net.Bancos
                         break;
 
                     default:
-                        throw new Exception("Santander - Trailler - Tipo de arquivo inexistente.");
+                        throw new Exception("Bradesco - Trailler - Tipo de arquivo inexistente.");
                 }
 
                 if (String.IsNullOrWhiteSpace(trailer))
@@ -260,19 +259,19 @@ namespace Pagamento2Net.Bancos
                     parameters[0016] = docNumber.Substring(12, 2);  // CNPJ/CPF - Controle
                 }
 
-                parameters[0018] = documento.Favorecido.Nome;                           // Nome do Fornecedor
-                parameters[0048] = documento.Favorecido.Endereço.FormataLogradouro(40); // Endereço do Fornecedor
-                parameters[0088] = documento.Favorecido.Endereço.PrefixoCEP();          // Número do CEP
-                parameters[0093] = documento.Favorecido.Endereço.SufixoCEP();           // Sufixo do CEP
-                parameters[0120] = documento.NúmeroDocumentoCliente;                    // Número do Pagamento
-                parameters[0166] = documento.DataDoVencimento;                          // Data de vencimento
-                parameters[0195] = documento.ValorDoDocumento;                          // Valor do Documento
-                parameters[0205] = documento.ValorDoPagamento;                          // Valor do Pagamento
-                parameters[0220] = documento.ValorDoDesconto;                           // Valor do Desconto
-                parameters[0235] = documento.ValorDaMora + documento.ValorDaMulta;      // Valor do Acréscimo
-                parameters[0250] = 5;                                                   // Tipo de documento
-                parameters[0266] = documento.DataDoPagamento;                           // Data para efetivação do pagamento
-                parameters[0289] = (int)documento.TipoDeMovimento;                      // Tipo de movimento
+                parameters[0018] = documento.Favorecido.Nome;                                                   // Nome do Fornecedor
+                parameters[0048] = documento.Favorecido.Endereço.FormataLogradouro(40);                         // Endereço do Fornecedor
+                parameters[0088] = documento.Favorecido.Endereço.PrefixoCEP();                                  // Número do CEP
+                parameters[0093] = documento.Favorecido.Endereço.SufixoCEP();                                   // Sufixo do CEP
+                parameters[0120] = documento.NúmeroDocumentoCliente;                                            // Número do Pagamento
+                parameters[0166] = Boleto2Net.Util.Utils.FormataDataParaArquivo(documento.DataDoVencimento);    // Data de vencimento
+                parameters[0195] = documento.ValorDoDocumento;                                                  // Valor do Documento
+                parameters[0205] = documento.ValorDoPagamento;                                                  // Valor do Pagamento
+                parameters[0220] = documento.ValorDoDesconto;                                                   // Valor do Desconto
+                parameters[0235] = documento.ValorDaMora + documento.ValorDaMulta;                              // Valor do Acréscimo
+                parameters[0250] = 5;                                                                           // Tipo de documento
+                parameters[0266] = documento.DataDoPagamento;                                                   // Data para efetivação do pagamento
+                parameters[0289] = (int)documento.TipoDeMovimento;                                              // Tipo de movimento
 
                 // Código do Movimento
                 switch (documento.CódigoDaInstruçãoParaMovimento)
@@ -365,6 +364,7 @@ namespace Pagamento2Net.Bancos
                         parameters[0139] = 0;                                                   // Nosso número
                         parameters[0151] = Empty;                                               // Seu Número
                         parameters[0264] = 02;                                                  // Modalidade de Pagamento
+                        parameters[0479] = Empty;                                                  // Tipo de Conta do Fornecedor
                         break;
 
                     #endregion 02 CHEQUE OP (ORDEM DE PAGAMENTO)
@@ -423,6 +423,9 @@ namespace Pagamento2Net.Bancos
 
                         #endregion Informações Complementares
 
+                        // Tipo de Conta do Fornecedor - Apenas usado para a modalidade 1
+                        parameters[0479] = Empty; 
+
                         break;
 
                     #endregion 03 DOC COMPE && 08 TED
@@ -445,6 +448,9 @@ namespace Pagamento2Net.Bancos
                         }
 
                         parameters[0374] = String.Concat(new string(' ', 25), new string('0', 15)); // Informações Complementares
+
+                        // Tipo de Conta do Fornecedor - Apenas usado para a modalidade 1
+                        parameters[0479] = Empty;
 
                         break;
 
@@ -481,6 +487,9 @@ namespace Pagamento2Net.Bancos
                             parameters[0374] = String.Concat(campoLivre, digitoVerificador, codigoMoeda, new string('0', 13)); // Informações Complementares
                         }
 
+                        // Tipo de Conta do Fornecedor - Apenas usado para a modalidade 1
+                        parameters[0479] = Empty;
+
                         break;
 
                     #endregion 31 TÍTULOS DE TERCEIROS
@@ -507,6 +516,7 @@ namespace Pagamento2Net.Bancos
                         break;
 
                         #endregion Tipos de Pagamentos não implementados
+
                 }
 
                 TRegistroEDI reg = new TRegistroEDI();
@@ -576,7 +586,7 @@ namespace Pagamento2Net.Bancos
             }
             catch (Exception ex)
             {
-                throw new Exception("Erro ao gerar Segmento A do lote no arquivo de remessa do CNAB240 SIGCB.", ex);
+                throw new Exception("Erro ao gerar Segmento do lote no arquivo de remessa do 500POS.", ex);
             }
         } //TODO: verificar
 

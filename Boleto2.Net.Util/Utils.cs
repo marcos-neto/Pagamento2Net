@@ -350,5 +350,10 @@ namespace Boleto2Net.Util
 
             return $"{A}{B}{D}{E}{C}";
         }
+
+        public static string FormataDataParaArquivo(DateTime data)
+        {
+            return string.Format("YYYYMMDD", data);
+        }
     }
 }

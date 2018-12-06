@@ -1,6 +1,4 @@
-﻿using Pagamento2.Net.Entidades;
-using Pagamento2.Net.Enums;
-using Pagamento2Net.Enums;
+﻿using Pagamento2Net.Enums;
 using System;
 
 namespace Pagamento2Net.Entidades
@@ -65,11 +63,6 @@ namespace Pagamento2Net.Entidades
         /// Data Real do Pagamento (Retorno)
         /// </summary>
         public string DataRealPagamentoRetorno { get; set; }
-
-        /// <summary>
-        /// Valor Real do Pagamento
-        /// </summary>
-        public string ValorRealPagamento { get; set; }
 
         /// <summary>
         ///

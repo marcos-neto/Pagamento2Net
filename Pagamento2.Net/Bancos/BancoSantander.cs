@@ -1,8 +1,7 @@
 ﻿using Boleto2Net.Util;
 using Pagamento2.Net.Entidades;
-using Pagamento2.Net.Enums;
-using Pagamento2Net.Entidades;
 using Pagamento2Net.Enums;
+using Pagamento2Net.Entidades;
 using Pagamento2Net.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -1000,8 +999,6 @@ namespace Pagamento2Net.Bancos
         {
             try
             {
-
-
                 Título título = new Título
                 {
 

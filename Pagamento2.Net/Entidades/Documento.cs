@@ -1,5 +1,4 @@
 ﻿using Pagamento2.Net.Entidades;
-using Pagamento2.Net.Enums;
 using Pagamento2Net.Enums;
 using System;
 using System.Collections.Generic;

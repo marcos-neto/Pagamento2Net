@@ -1,4 +1,4 @@
-﻿namespace Pagamento2.Net.Enums
+﻿namespace Pagamento2Net.Enums
 {
     public enum TipoMovimentoEnum
     {

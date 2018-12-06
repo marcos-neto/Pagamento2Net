@@ -1,4 +1,5 @@
 ﻿using Boleto2Net.Util;
+using Pagamento2.Net.Contratos;
 using Pagamento2Net;
 using Pagamento2Net.Bancos;
 using Pagamento2Net.Entidades;
@@ -7,9 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Boleto2Net
+namespace Pagamento2Net
 {
-    public class ArquivoRemessaPagamento
+    public class ArquivoRemessaPagamento : ICriarArquivoRemessa
     {
         private IRemessaPagamento Banco { get; set; }
         private TipoArquivo TipoArquivo { get; set; }
@@ -57,7 +58,7 @@ namespace Boleto2Net
                 throw new Exception("Erro ao identificar o número do arquivo de remessa.", e);
             }
 
-            GerarArquivo(pagamento, null);
+            //GerarArquivo(pagamento, null);
         }
 
         /// <summary>
@@ -161,16 +162,17 @@ namespace Boleto2Net
             arquivoRemessa = null;
         }
 
-        //public string GenerateRemittanceFile(Pagamento pagamento)
-        //{
-        //    string fileName = Path.GetTempFileName();
+        public string GerarArquivoRemessa(Pagamento pagamento)
+        {
+            string fileName = Path.GetTempFileName();
 
-        //    using (var fileStream = new FileStream(fileName, FileMode.Create))
-        //    {
-        //        GenerateRemittance(pagamento, fileStream);
-        //    }
+            using (var fileStream = new FileStream(fileName, FileMode.Create))
+            {
+                GerarArquivo(pagamento, fileStream);
+            }
 
-        //    return File.ReadAllText(fileName);
-        //}
+            return File.ReadAllText(fileName);
+        }
+
     }
 }

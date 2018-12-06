@@ -45,6 +45,8 @@
     <Compile Include="ArquivoRetornoPagamento.cs" />
     <Compile Include="Bancos\BancoBradesco.cs" />
     <Compile Include="Bancos\BancoSantander.cs" />
+    <Compile Include="Contratos\ICriarArquivoRemessa.cs" />
+    <Compile Include="Contratos\ICriarArquivoRetorno.cs" />
     <Compile Include="Entidades\ContaFinanceira.cs" />
     <Compile Include="Entidades\Documento.cs" />
     <Compile Include="Entidades\Endereço.cs" />

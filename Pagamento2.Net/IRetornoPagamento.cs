@@ -1,5 +1,5 @@
 ﻿using Boleto2Net.Util;
-using Pagamento2.Net.Enums;
+using Pagamento2Net.Enums;
 using Pagamento2Net.Entidades;
 
 namespace Pagamento2Net

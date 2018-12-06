@@ -1,6 +1,6 @@
-﻿using Pagamento2.Net.Enums;
+﻿using Pagamento2Net.Enums;
 
-namespace Pagamento2.Net.Entidades
+namespace Pagamento2Net.Entidades
 {
     public class ContaFinanceira
     {

@@ -37,14 +37,14 @@ namespace Pagamento2Net.Exceptions
         public static Exception ErroAoLerRegistroHeaderDoArquivoRetorno(Exception ex)
             => new Pagamento2NetException("Erro durante a leitura do registro HEADER do arquivo de RETORNO.", ex);
 
+        public static Exception ErroAoLerRegistroHeaderLoteDoArquivoRetorno(Exception ex)
+            => new Pagamento2NetException("Erro durante a leitura do registro HEADER do LOTE do arquivo de RETORNO", ex);
+
         public static Exception ErroAoLerRegistroDetalheDoArquivoRetorno(Exception ex)
             => new Pagamento2NetException("Erro durante a leitura dos registros de DETALHE do arquivo de RETORNO.", ex);
 
         public static Exception ErroAoLerRegistroTrailerDoArquivoRetorno(Exception ex)
             => new Pagamento2NetException("Erro durante a leitura do registro TRAILER do arquivo de RETORNO.", ex);
-
-        public static Exception ErroAoLerRegistroHeaderLoteDoArquivoRetorno(Exception ex)
-            => new Pagamento2NetException("Erro durante a leitura do registro HEADER do LOTE do arquivo de RETORNO", ex);
 
         public static Exception ErroAoLerRegistroTrailerLoteDoArquivoRetorno(Exception ex)
             => new Pagamento2NetException("Erro durante a leitura do registro TRAILER do LOTE do arquivo de RETORNO", ex);

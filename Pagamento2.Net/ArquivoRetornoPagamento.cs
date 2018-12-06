@@ -1,5 +1,6 @@
 ﻿using Boleto2Net.Util;
-using Pagamento2.Net.Enums;
+using Pagamento2.Net.Contratos;
+using Pagamento2Net.Enums;
 using Pagamento2Net;
 using Pagamento2Net.Bancos;
 using Pagamento2Net.Entidades;
@@ -7,9 +8,9 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace Boleto2Net
+namespace Pagamento2Net
 {
-    public class ArquivoRetornoPagamento
+    public class ArquivoRetornoPagamento : ICriarArquivoRetorno
     {
         public IRetornoPagamento Banco { get; set; }
 
@@ -173,72 +174,7 @@ namespace Boleto2Net
             }
         }
 
-        //private void LerLinhaDoArquivoRetornoCNAB400(string registro)
-        //{
-        //    // Identifica o tipo do registro (primeira posição da linha)
-        //    var tipoRegistro = registro.Substring(0, 1);
-
-        //    // Registro HEADER
-        //    if (tipoRegistro == "0")
-        //    {
-        //        Banco.LerHeaderRetornoCNAB400(registro);
-        //        return;
-        //    }
-
-        //    // Registro TRAILER
-        //    if (tipoRegistro == "9")
-        //    {
-        //        Banco.LerTrailerRetornoCNAB400(registro);
-        //        return;
-        //    }
-
-        //    // Se o registro não estiver na lista a ser processada pelo banco selecionado, ignora o registro
-        //    if (!Banco.IdsRetornoCnab400RegistroDetalhe.Contains(tipoRegistro))
-        //        return;
-
-        //    // O primeiro ID da lista, identifica um novo boleto.
-        //    bool novoBoleto = false;
-        //    if (tipoRegistro == Banco.IdsRetornoCnab400RegistroDetalhe.First())
-        //        novoBoleto = true;
-
-        //    // Se for um novo boleto, cria um novo objeto, caso contrário, seleciona o último boleto
-        //    // Estamos considerando que, quando houver mais de um registro para o mesmo boleto, no arquivo retorno, os registros serão apresentados na sequencia.
-        //    Boleto boleto;
-        //    if (novoBoleto)
-        //    {
-        //        boleto = new Boleto(this.Banco, _ignorarCarteiraBoleto);
-        //    }
-        //    else
-        //    {
-        //        boleto = Documentos.Last();
-        //        // Se não encontrou um boleto válido, ocorreu algum problema, pois deveria ter criado um novo objeto no registro que foi analisado anteriormente.
-        //        if (boleto == null)
-        //            throw new Exception("Objeto boleto não identificado");
-        //    }
-
-        //    // Identifica o tipo de registro que deve ser analisado pelo Banco.
-        //    switch (tipoRegistro)
-        //    {
-        //        case "1":
-        //            Banco.LerDetalheRetornoCNAB400Segmento1(ref boleto, registro);
-        //            break;
-
-        //        case "7":
-        //            Banco.LerDetalheRetornoCNAB400Segmento7(ref boleto, registro);
-        //            break;
-
-        //        default:
-        //            break;
-        //    }
-
-        //    // Se for um novo boleto, adiciona na lista de boletos.
-        //    if (novoBoleto)
-        //    {
-        //        Documentos.Add(boleto);
-        //    }
-        //}
-
-        public Pagamento ParseFile(byte[] contents)
+        public Pagamento LerArquivo(byte[] contents)
         {
             MemoryStream stream = new MemoryStream(contents);
             LerArquivoRetorno(stream);
