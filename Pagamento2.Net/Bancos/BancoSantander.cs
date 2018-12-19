@@ -1,5 +1,4 @@
 ﻿using Boleto2Net.Util;
-using Pagamento2.Net.Entidades;
 using Pagamento2Net.Enums;
 using Pagamento2Net.Entidades;
 using Pagamento2Net.Exceptions;
@@ -127,7 +126,7 @@ namespace Pagamento2Net.Bancos
 
                         foreach (GeradorSegmento gerador in segmentos)
                         {
-                            strline = gerador.Invoke(documento, ref loteServico, ref numeroRegistroLote, ref numeroRegistroLote);
+                            strline = gerador.Invoke(documento, ref loteServico, ref numeroRegistroLote, ref numeroRegistroGeral);
 
                             if (String.IsNullOrWhiteSpace(strline))
                             {
@@ -158,7 +157,7 @@ namespace Pagamento2Net.Bancos
         /// <param name="numeroRegistros"></param>
         /// <param name="valorTotalRegistros"></param>
         /// <returns></returns>
-        public string GerarTrailerLoteRemessaPagamento(TipoArquivo tipoArquivo, ref int numeroRegistroGeral, int loteServico, int numeroRegistros, decimal valorTotalRegistros)
+        public string GerarTrailerLoteRemessaPagamento(TipoArquivo tipoArquivo, int loteServico, int numeroRegistrosLote, decimal valorTotalRegistrosLote, ref int numeroRegistroGeral)
         {
             try
             {
@@ -168,10 +167,11 @@ namespace Pagamento2Net.Bancos
                     case TipoArquivo.CNAB240:
                         // Trailer do Lote
                         trailer = GerarTrailerLoteRemessaPagamentoCNAB240(
-                                ref numeroRegistroGeral,
                                 loteServico,
-                                numeroRegistros,
-                                valorTotalRegistros);
+                                numeroRegistrosLote,
+                                valorTotalRegistrosLote,
+                                ref numeroRegistroGeral
+                                );
                         break;
 
                     default:
@@ -228,6 +228,8 @@ namespace Pagamento2Net.Bancos
             }
         }
 
+
+        #region Geração do Arquivo CNAB240
 
         /// <summary>
         /// Geração do header do arquivo
@@ -287,7 +289,8 @@ namespace Pagamento2Net.Bancos
         /// <param name="numeroRegistroGeral"></param>
         /// <param name="versaoLayout"></param>
         /// <returns></returns>
-        private string GerarHeaderLoteRemessaPagamentoCNAB240(Pagador pagador, string tipoOperacao, ref int loteServico, string tipoServico, TipoPagamentoEnum tipoPagamento, int numeroArquivoRemessa, ref int numeroRegistroGeral, ref int numeroRegistrosLote)
+        private string GerarHeaderLoteRemessaPagamentoCNAB240(
+            Pagador pagador, string tipoOperacao, string tipoServico, TipoPagamentoEnum tipoPagamento, int numeroArquivoRemessa, ref int loteServico, ref int numeroRegistrosLote, ref int numeroRegistroGeral)
         {
             try
             {
@@ -361,7 +364,7 @@ namespace Pagamento2Net.Bancos
             }
             catch (Exception ex)
             {
-                throw new Exception("Erro ao gerar HEADER do lote no arquivo de remessa do CNAB240 SIGCB.", ex);
+                throw new Exception("Erro ao gerar HEADER do lote no arquivo de remessa do CNAB240.", ex);
             }
         }
 
@@ -376,17 +379,17 @@ namespace Pagamento2Net.Bancos
         /// <returns></returns>
         private string GerarDetalheSegmentoARemessaPagamentoCNAB240(Documento documento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral)
         {
-            if (!(documento is Transferência))
+            if (!(documento is Transferencia))
             {
                 throw new Exception("tem que ser do tipo transferência"); //TODO: melhorar exception
             }
 
-            Transferência transferência = documento as Transferência;
+            Transferencia transferência = documento as Transferencia;
 
             try
             {
-                numeroRegistroLote++;   //Incrementa +1 registro ao contador de registros geral
-                numeroRegistroGeral++;  //Incrementa +1 registro ao contador de registros do lote
+                numeroRegistroGeral++;   //Incrementa +1 registro ao contador de registros geral
+                numeroRegistroLote++;  //Incrementa +1 registro ao contador de registros do lote
                 int instruçãoMovimento;
                 string tipoPagamento;
 
@@ -481,12 +484,12 @@ namespace Pagamento2Net.Bancos
         /// <returns></returns>
         private string GerarDetalheSegmentoBRemessaPagamentoCNAB240(Documento documento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral)
         {
-            if (!(documento is Transferência))
+            if (!(documento is Transferencia))
             {
                 throw new Exception("tem que ser do tipo transferência"); //TODO: melhorar exception
             }
 
-            Transferência transferência = documento as Transferência;
+            Transferencia transferência = documento as Transferencia;
 
             try
             {
@@ -510,11 +513,11 @@ namespace Pagamento2Net.Bancos
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0118, 008, 0, transferência.Favorecido.Endereço.CEP, ' ');                //  Cep do endereco do favorecido para entrega do recibo. //opcional
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0126, 002, 0, transferência.Favorecido.Endereço.Estado, ' ');             //  Estado do endereco do favorecido para entrega do recibo. //opcional
                 reg.Adicionar(TTiposDadoEDI.ediDataDDMMAAAA_________, 0128, 008, 0, transferência.DataDoVencimento, ' ');                       //  Data de vencimento
-                reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0136, 015, 2, transferência.ValorDoPagamento, '0');                       //  Valor do documento. //opcional
-                reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0151, 015, 2, transferência.ValorDoAbatimento, '0');                      //  Valor do abatimento. //opcional
-                reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0166, 015, 2, transferência.ValorDoDesconto, '0');                        //  Valor do desconto. //opcional
-                reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0181, 015, 0, transferência.ValorDaMora, '0');                            //  Valor de mora. //opcional
-                reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0196, 015, 2, transferência.ValorDaMulta, '0');                           //  Valor de multa. //opcional
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0136, 015, 2, transferência.ValorDoPagamento, '0');                       //  Valor do documento. //opcional
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0151, 015, 2, transferência.ValorDoAbatimento, '0');                      //  Valor do abatimento. //opcional
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0166, 015, 2, transferência.ValorDoDesconto, '0');                        //  Valor do desconto. //opcional
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0181, 015, 2, transferência.ValorDaMora, '0');                            //  Valor de mora. //opcional
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0196, 015, 2, transferência.ValorDaMulta, '0');                           //  Valor de multa. //opcional
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0211, 004, 0, 0, '0');                                                    //  Horario de Envio de TED. //opcional
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0215, 011, 0, Empty, ' ');                                                //  Brancos
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0226, 004, 0, 0, '0');                                                    //  Código Histórico para Crédito
@@ -542,17 +545,17 @@ namespace Pagamento2Net.Bancos
         private string GerarDetalheSegmentoJRemessaPagamentoCNAB240(Documento documento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral)
         {
 
-            if (!(documento is Título))
+            if (!(documento is Titulo))
             {
                 throw new Exception("Nao é um titulo"); //TODO: melhorar exception
             }
 
-            Título titulo = documento as Título;
+            Titulo titulo = documento as Titulo;
 
             try
             {
-                numeroRegistroLote++;   //Incrementa +1 registro ao contador de registros geral
-                numeroRegistroGeral++;  //Incrementa +1 registro ao contador de registros do lote
+                numeroRegistroGeral++;  //Incrementa +1 registro ao contador de registros geral
+                numeroRegistroLote++;   //Incrementa +1 registro ao contador de registros do lote
                 int instruçãoMovimento;
 
                 // Código do Movimento
@@ -619,20 +622,20 @@ namespace Pagamento2Net.Bancos
         /// <param name="numeroRegistros"></param>
         /// <param name="valorTotalRegistros"></param>
         /// <returns></returns>
-        private string GerarTrailerLoteRemessaPagamentoCNAB240(ref int numeroRegistroGeral, int loteServico, int numeroRegistros, decimal valorTotalRegistros)
+        private string GerarTrailerLoteRemessaPagamentoCNAB240(int loteServico, int numeroRegistrosLote, decimal valorTotalRegistrosLote, ref int numeroRegistroGeral)
         {
             try
             {
                 numeroRegistroGeral++; //Incrementa +1 registro ao contador geral
-                int numeroRegistrosNoLote = numeroRegistros + 1;  // O número de registros no lote é igual ao número de registros gerados + 1 (trailer do lote)
+                numeroRegistrosLote++;  // O número de registros no lote é igual ao número de registros gerados + 1 (trailer do lote)
 
                 TRegistroEDI reg = new TRegistroEDI();
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0001, 003, 0, "033", '0');                    //  Código do Banco
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0004, 004, 0, loteServico, '0');              //  Lote de Serviço
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0008, 001, 0, "5", '0');                      //  Tipo de Registro
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0009, 009, 0, Empty, ' ');                    //  Filler
-                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0018, 006, 0, numeroRegistrosNoLote, '0');    //  Quantidade de Registros do Lote
-                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0024, 018, 2, valorTotalRegistros, '0');      //  Somatória dos Valores
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0018, 006, 0, numeroRegistrosLote, '0');    //  Quantidade de Registros do Lote
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0024, 018, 2, valorTotalRegistrosLote, '0');      //  Somatória dos Valores
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0042, 018, 0, "0", '0');                      //  Somatorio quantidade moeda
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0060, 006, 0, "0", '0');                      //  Numero aviso de debito
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0066, 165, 0, Empty, ' ');                    //  Brancos
@@ -673,6 +676,9 @@ namespace Pagamento2Net.Bancos
                 throw new Exception("Erro ao gerar TRAILER do arquivo de remessa do CNAB240.", ex);
             }
         }
+
+        #endregion Geração do Arquivo CNAB240
+
 
         #endregion IRemessaPagamento methods
 
@@ -837,7 +843,7 @@ namespace Pagamento2Net.Bancos
             try
             {
 
-                Transferência transferência = new Transferência
+                Transferencia transferência = new Transferencia
                 {
                     // Tipo de Movimento 015 015 9(001) Nota G011
                     TipoDeMovimento = (TipoMovimentoEnum)Enum.Parse(typeof(TipoMovimentoEnum), registro.Substring(14, 1)),
@@ -901,7 +907,7 @@ namespace Pagamento2Net.Bancos
                 string ocorrências = registro.Substring(230, 10);
                 for (int i = 0; i < 10; i += 2)
                 {
-                    transferência.OcorrênciasParaRetorno.Add(new Ocorrência(ocorrências.Substring(i, 2), new OcorrênciasSantander()));
+                    transferência.OcorrênciasParaRetorno.Add(new Ocorrencia(ocorrências.Substring(i, 2), new OcorrênciasSantander()));
                 }
 
                 //Adiciona a transferencia ao Pagamento
@@ -917,7 +923,7 @@ namespace Pagamento2Net.Bancos
         {
             try
             {
-                Transferência transferência = new Transferência()
+                Transferencia transferência = new Transferencia()
                 {
                     Favorecido = new Favorecido()
                     {
@@ -925,7 +931,7 @@ namespace Pagamento2Net.Bancos
                         // CNPJ/CPF do Favorecido 019 032 9(014) CPF/CNPJ
                         NúmeroCadastro = registro.Substring(17, 1) == "1" ? registro.Substring(21, 11) : registro.Substring(18, 14),
 
-                        Endereço = new Endereço()
+                        Endereço = new Endereco()
                         {
                             // Logradouro do Favorecido 033 062 X(030) Opcional
                             Rua = registro.Substring(32, 30),
@@ -980,7 +986,7 @@ namespace Pagamento2Net.Bancos
                 string ocorrências = registro.Substring(230, 10);
                 for (int i = 0; i < 10; i += 2)
                 {
-                    transferência.OcorrênciasParaRetorno.Add(new Ocorrência(ocorrências.Substring(i, 2), new OcorrênciasSantander()));
+                    transferência.OcorrênciasParaRetorno.Add(new Ocorrencia(ocorrências.Substring(i, 2), new OcorrênciasSantander()));
                 }
 
                 //Adiciona a transferência ao pagamento
@@ -999,7 +1005,7 @@ namespace Pagamento2Net.Bancos
         {
             try
             {
-                Título título = new Título
+                Titulo título = new Titulo
                 {
 
                     // Tipo de Movimento 015 015 9(001) Nota G011
@@ -1047,7 +1053,7 @@ namespace Pagamento2Net.Bancos
                 string ocorrências = registro.Substring(230, 10);
                 for (int i = 0; i <= 8; i += 2)
                 {
-                    título.OcorrênciasParaRetorno.Add(new Ocorrência(ocorrências.Substring(i, 2), new OcorrênciasSantander()));
+                    título.OcorrênciasParaRetorno.Add(new Ocorrencia(ocorrências.Substring(i, 2), new OcorrênciasSantander()));
                 }
 
                 pagamento.Documentos.Add(título);

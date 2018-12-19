@@ -1,6 +1,5 @@
 ﻿using Boleto2Net.Util;
-using Pagamento2.Net.Contratos;
-using Pagamento2Net;
+using Pagamento2Net.Contratos;
 using Pagamento2Net.Bancos;
 using Pagamento2Net.Entidades;
 using System;
@@ -16,7 +15,11 @@ namespace Pagamento2Net
         private TipoArquivo TipoArquivo { get; set; }
         private int NumeroArquivoRemessa { get; set; }
 
-        public ArquivoRemessaPagamento(Pagamento pagamento)
+        public ArquivoRemessaPagamento()
+        {
+        }
+
+        private void Initialize(Pagamento pagamento)
         {
             try
             {
@@ -58,7 +61,6 @@ namespace Pagamento2Net
                 throw new Exception("Erro ao identificar o número do arquivo de remessa.", e);
             }
 
-            //GerarArquivo(pagamento, null);
         }
 
         /// <summary>
@@ -68,6 +70,9 @@ namespace Pagamento2Net
         /// <returns></returns>
         private void GerarArquivo(Pagamento pagamento, Stream file)
         {
+            //Faz algumas validações iniciais
+            Initialize(pagamento);
+
             ////StreamWriter arquivoRemessa = new StreamWriter(file, Encoding.GetEncoding("ISO-8859-1"));
             StreamWriter arquivoRemessa = new StreamWriter(file, Encoding.UTF8); //TODO: Alterar a codificação default
 
@@ -120,7 +125,7 @@ namespace Pagamento2Net
                         numeroRegistrosLote: ref numeroRegistrosLote
                         ));
 
-                foreach (Documento documento in lote.Documentos)
+                foreach (var documento in lote.Documentos)
                 {
                     valorTotalRegistrosLote += documento.ValorDoPagamento;
                     valorTotalRegistrosArquivo += documento.ValorDoPagamento;
@@ -141,10 +146,10 @@ namespace Pagamento2Net
                 arquivoRemessa.WriteLine(
                     Banco.GerarTrailerLoteRemessaPagamento(
                         TipoArquivo,
-                        ref numeroRegistrosGeral,
                         loteDeServico,
                         numeroRegistrosLote,
-                        valorTotalRegistrosLote
+                        valorTotalRegistrosLote,
+                        ref numeroRegistrosGeral
                     ));
             }
 

@@ -1,6 +1,6 @@
 ﻿namespace Pagamento2Net.Entidades
 {
-    public class Endereço
+    public class Endereco
     {
         public string Rua { get; set; } = string.Empty;
         public string Número { get; set; } = string.Empty;

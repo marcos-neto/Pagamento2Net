@@ -1,5 +1,6 @@
 ﻿using Pagamento2Net.Enums;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Pagamento2Net.Entidades
 {
@@ -7,7 +8,7 @@ namespace Pagamento2Net.Entidades
     /// Formas de Lançamento 01, 03, 05 e 10
     /// Crédito em Conta Corrente e Conta Poupança, DOC, TED, Caixa e OP (Recibo)
     /// </summary>
-    public class Transferência : Documento
+    public class Transferencia : Documento
     {
         /// <summary>
         /// Código da Câmara Centralizadora
@@ -89,9 +90,10 @@ namespace Pagamento2Net.Entidades
         /// <summary>
         /// Finalidade DOC e TED
         /// </summary>
+        [Required]
         public FinalidadeEnum FinalidadeDocTed { get; set; }
 
-        public Transferência()
+        public Transferencia()
         {
             base.TipoDePagamento = TipoPagamentoEnum.Caixa;
         }

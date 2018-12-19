@@ -49,13 +49,15 @@
     <Compile Include="Contratos\ICriarArquivoRetorno.cs" />
     <Compile Include="Entidades\ContaFinanceira.cs" />
     <Compile Include="Entidades\Documento.cs" />
-    <Compile Include="Entidades\Endereço.cs" />
+    <Compile Include="Entidades\Endereco.cs" />
     <Compile Include="Entidades\Favorecido.cs" />
     <Compile Include="Entidades\Pagador.cs" />
+    <Compile Include="Entidades\TituloBancario.cs" />
     <Compile Include="Entidades\Pessoa.cs" />
     <Compile Include="Entidades\Pagamento.cs" />
-    <Compile Include="Entidades\Título.cs" />
-    <Compile Include="Entidades\Transferência.cs" />
+    <Compile Include="Entidades\Titulo.cs" />
+    <Compile Include="Entidades\Transferencia.cs" />
+    <Compile Include="Entidades\TransferenciaBancaria.cs" />
     <Compile Include="Enums\FinalidadeEnum.cs" />
     <Compile Include="Enums\InstruçãoMovimentoEnum.cs" />
     <Compile Include="Enums\TipoContaEnum.cs" />
@@ -69,7 +71,7 @@
     <Compile Include="IRetornoPagamento.cs" />
     <Compile Include="Ocorrências\OcorrênciasBradesco.cs" />
     <Compile Include="Ocorrências\OcorrênciasFebraban.cs" />
-    <Compile Include="Ocorrências\Ocorrência.cs" />
+    <Compile Include="Ocorrências\Ocorrencia.cs" />
     <Compile Include="Ocorrências\OcorrênciaParser.cs" />
     <Compile Include="Ocorrências\OcorrênciasSantander.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

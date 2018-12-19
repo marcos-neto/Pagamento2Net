@@ -353,7 +353,7 @@ namespace Boleto2Net.Util
 
         public static string FormataDataParaArquivo(DateTime data)
         {
-            return string.Format("YYYYMMDD", data);
+            return data.ToString("yyyy/MM/dd");
         }
     }
 }

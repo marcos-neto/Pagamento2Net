@@ -61,13 +61,22 @@ namespace Boleto2Net.Util
         /// </summary>
         public virtual void CodificarLinha()
         {
-            var builder = new StringBuilder();
-            foreach (TCampoRegistroEDI campos in this._CamposEDI)
+            int posição = 0;
+            try
             {
-                campos.CodificarNaturalParaEDI();
-                builder.Append(campos.ValorFormatado);
+                var builder = new StringBuilder();
+                foreach (TCampoRegistroEDI campos in this._CamposEDI)
+                {
+                    posição = campos.PosicaoInicial;
+                    campos.CodificarNaturalParaEDI();
+                    builder.Append(campos.ValorFormatado);
+                }
+                this._LinhaRegistro = builder.ToString();
             }
-            this._LinhaRegistro = builder.ToString();
+            catch (System.Exception ex)
+            {
+                throw new System.Exception("Erro na posição: " + posição.ToString());
+            }
         }
 
         /// <summary>

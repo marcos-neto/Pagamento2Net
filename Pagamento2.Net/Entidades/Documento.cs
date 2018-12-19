@@ -1,5 +1,4 @@
-﻿using Pagamento2.Net.Entidades;
-using Pagamento2Net.Enums;
+﻿using Pagamento2Net.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -68,7 +67,7 @@ namespace Pagamento2Net.Entidades
         /// Código adotado para identificar as ocorrências detectadas no processamento.
         /// Pode-se informar até 5 ocorrências simultaneamente, cada uma delas codificada com dois dígitos
         /// </summary>
-        public IList<Ocorrência> OcorrênciasParaRetorno { get; set; }
+        public IList<Ocorrencia> OcorrênciasParaRetorno { get; set; }
 
         /// <summary>
         ///

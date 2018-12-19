@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pagamento2.Net.Entidades
+namespace Pagamento2Net.Entidades
 {
     /// <summary>
     /// Títulos de Cobrança (Próprio e Outros Bancos)
     /// </summary>
-    public class Título : Documento
+    public class Titulo : Documento
     {
         /// <summary>
         /// 

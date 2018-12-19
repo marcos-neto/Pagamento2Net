@@ -1,5 +1,4 @@
-﻿using Pagamento2.Net.Entidades;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -16,7 +15,7 @@ namespace Pagamento2Net.Entidades
 
         public ContaFinanceira ContaFinanceira { get; set; }
 
-        public Endereço Endereço { get; set; }
+        public Endereco Endereço { get; set; }
 
         [Required]
         public string Nome { get; set; } = string.Empty;

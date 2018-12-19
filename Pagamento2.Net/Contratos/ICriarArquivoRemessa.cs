@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pagamento2.Net.Contratos
+namespace Pagamento2Net.Contratos
 {
     public interface ICriarArquivoRemessa
     {

@@ -1,5 +1,5 @@
 ﻿using Boleto2Net.Util;
-using Pagamento2.Net.Contratos;
+using Pagamento2Net.Contratos;
 using Pagamento2Net.Enums;
 using Pagamento2Net;
 using Pagamento2Net.Bancos;
