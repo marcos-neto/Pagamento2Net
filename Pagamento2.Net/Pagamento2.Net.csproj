@@ -52,12 +52,10 @@
     <Compile Include="Entidades\Endereco.cs" />
     <Compile Include="Entidades\Favorecido.cs" />
     <Compile Include="Entidades\Pagador.cs" />
-    <Compile Include="Entidades\TituloBancario.cs" />
     <Compile Include="Entidades\Pessoa.cs" />
     <Compile Include="Entidades\Pagamento.cs" />
     <Compile Include="Entidades\Titulo.cs" />
     <Compile Include="Entidades\Transferencia.cs" />
-    <Compile Include="Entidades\TransferenciaBancaria.cs" />
     <Compile Include="Enums\FinalidadeEnum.cs" />
     <Compile Include="Enums\InstruçãoMovimentoEnum.cs" />
     <Compile Include="Enums\TipoContaEnum.cs" />

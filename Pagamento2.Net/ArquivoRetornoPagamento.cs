@@ -7,6 +7,7 @@ using Pagamento2Net.Entidades;
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Pagamento2Net
 {
@@ -81,7 +82,11 @@ namespace Pagamento2Net
 
         private Pagamento LerArquivoRetorno(Stream fileStream)
         {
-            Pagamento pagamento = new Pagamento();
+            Pagamento pagamento = new Pagamento()
+            {
+                Pagador = new Pagador(),
+                Documentos = new List<Documento>()
+            };
 
             // Ao percorrer o arquivo, armazena qual o tipo de serviço do lote atual, para setar nos documentos subsequentes.
             TipoServiçoEnum? currentServiceType = null;
@@ -92,7 +97,7 @@ namespace Pagamento2Net
                     Initialize(arquivo);
 
                     //busca o primeiro registro do arquivo
-                    var registro = arquivo.ReadLine();
+                    string registro = string.Empty;
 
                     //define a posicao do reader para o início
                     arquivo.DiscardBufferedData();
@@ -177,9 +182,8 @@ namespace Pagamento2Net
         public Pagamento LerArquivo(byte[] contents)
         {
             MemoryStream stream = new MemoryStream(contents);
-            LerArquivoRetorno(stream);
 
-            return Pagamento;
+            return LerArquivoRetorno(stream);
         }
     }
 }

@@ -89,12 +89,12 @@ namespace Pagamento2Net
 
             // geração do registro header do arquivo
             arquivoRemessa.WriteLine(
-                Banco.GerarHeaderRemessaPagamento(
+                Utils.RemoveCharactersEspeciais(Banco.GerarHeaderRemessaPagamento(
                     TipoArquivo,
                     pagamento.Pagador,
                     pagamento.NúmeroRemessa,
                     ref numeroRegistrosGeral
-                    ));
+                    )));
 
             // agrupa os registros por forma de lancamento (TipoDePagamento)
             var lotes = from d in pagamento.Documentos
@@ -113,8 +113,7 @@ namespace Pagamento2Net
                 valorTotalRegistrosLote = 0;
 
                 //geração do header dos lotes
-                arquivoRemessa.WriteLine(
-                    Banco.GerarHeaderLoteRemessaPagamento(
+                string headerLote = Utils.RemoveCharactersEspeciais(Banco.GerarHeaderLoteRemessaPagamento(
                         tipoArquivo: TipoArquivo,
                         pagador: pagamento.Pagador,
                         tipoPagamento: lote.TipoPagamento,
@@ -125,6 +124,10 @@ namespace Pagamento2Net
                         numeroRegistrosLote: ref numeroRegistrosLote
                         ));
 
+                //Se nao vier vazio escreve a linha no arquivo
+                if (!string.IsNullOrWhiteSpace(headerLote))
+                    arquivoRemessa.WriteLine(headerLote);
+
                 foreach (var documento in lote.Documentos)
                 {
                     valorTotalRegistrosLote += documento.ValorDoPagamento;
@@ -132,35 +135,38 @@ namespace Pagamento2Net
 
                     // geração dos detalhes (segmentos)
                     arquivoRemessa.WriteLine(
-                        Banco.GerarDetalheRemessaPagamento(
+                         Utils.RemoveCharactersEspeciais(Banco.GerarDetalheRemessaPagamento(
                             tipoArquivo: TipoArquivo,
                             documento: documento,
                             tipoPagamento: lote.TipoPagamento,
                             loteServico: ref loteDeServico,
                             numeroRegistroLote: ref numeroRegistrosLote,
                             numeroRegistroGeral: ref numeroRegistrosGeral
-                        ));
+                        )));
                 }
 
                 // geração do trailer do lote
-                arquivoRemessa.WriteLine(
-                    Banco.GerarTrailerLoteRemessaPagamento(
-                        TipoArquivo,
-                        loteDeServico,
-                        numeroRegistrosLote,
-                        valorTotalRegistrosLote,
-                        ref numeroRegistrosGeral
+                string trailerLote = Utils.RemoveCharactersEspeciais(Banco.GerarTrailerLoteRemessaPagamento(
+                    TipoArquivo,
+                    loteDeServico,
+                    numeroRegistrosLote,
+                    valorTotalRegistrosLote,
+                    ref numeroRegistrosGeral
                     ));
+
+                //se nao vier vazio escreve no arquivo
+                if (!string.IsNullOrWhiteSpace(trailerLote))
+                    arquivoRemessa.WriteLine(trailerLote);
             }
 
             // geração do trailer do arquivo
             arquivoRemessa.WriteLine(
-                Banco.GerarTrailerRemessaPagamento(
+                 Utils.RemoveCharactersEspeciais(Banco.GerarTrailerRemessaPagamento(
                     TipoArquivo,
                     numeroRegistrosGeral,
                     numeroLotes,
                     valorTotalRegistrosArquivo
-                ));
+                )));
 
             arquivoRemessa.Close();
             arquivoRemessa.Dispose();

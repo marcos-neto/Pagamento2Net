@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Boleto2Net.Util
 {
@@ -354,6 +356,22 @@ namespace Boleto2Net.Util
         public static string FormataDataParaArquivo(DateTime data)
         {
             return data.ToString("yyyy/MM/dd");
+        }
+
+        public static string RemoveCharactersEspeciais(string text)
+        {
+            string comAcentos = "ÄÅÁÂÀÃäáâàãÉÊËÈéêëèÍÎÏÌíîïìÖÓÔÒÕöóôòõÜÚÛüúûùÇçªº";
+            string semAcentos = "AAAAAAaaaaaEEEEeeeeIIIIiiiiOOOOOoooooUUUuuuuCcao";
+
+            for (int i = 0; i < comAcentos.Length; i++)
+            {
+                text = text.Replace(comAcentos[i].ToString(), semAcentos[i].ToString());
+            }
+
+            string pattern = @"(?i)[^0-9a-z-,.\s]";
+            string replacement = "";
+            Regex rgx = new Regex(pattern);
+            return rgx.Replace(text, replacement);
         }
     }
 }
