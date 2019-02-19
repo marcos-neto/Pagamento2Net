@@ -653,10 +653,10 @@ namespace Pagamento2Net.Bancos
             parameters[0191] = fatorDeVencimento;                                   // Fator de Vencimento
 
 
-            if (documento.TipoDeMovimento == TipoMovimentoEnum.Inclusao)
-            {
-                parameters[0289] = (int)TipoMovimentoEnum.Alteracao;                // Tipo de Movimento
-            }
+            //if (documento.TipoDeMovimento == TipoMovimentoEnum.Inclusao)
+            //{
+            //    parameters[0289] = (int)TipoMovimentoEnum.Alteracao;                // Tipo de Movimento
+            //}
 
             parameters[0374] = String.Concat(new string(' ', 25), new string('0', 15)); // Informações Complementares
 
