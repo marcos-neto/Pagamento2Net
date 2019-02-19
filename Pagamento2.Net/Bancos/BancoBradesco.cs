@@ -385,7 +385,7 @@ namespace Pagamento2Net.Bancos
                 reg.Adicionar(TTiposDadoEDI.ediInteiro______________, 0003, 009, 0, parameters[0003], '0');     // CNPJ/CPF - Número da Inscrição
                 reg.Adicionar(TTiposDadoEDI.ediInteiro______________, 0012, 004, 0, parameters[0012], '0');     // CNPJ/CPF - Filial
                 reg.Adicionar(TTiposDadoEDI.ediInteiro______________, 0016, 002, 0, parameters[0016], '0');     // CNPJ/CPF - Controle
-                reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0018, 030, 0, parameters[0018], '0');     // Nome do Fornecedor
+                reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0018, 030, 0, parameters[0018], ' ');     // Nome do Fornecedor
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0048, 040, 0, parameters[0048], ' ');     // Endereço do Fornecedor
                 reg.Adicionar(TTiposDadoEDI.ediInteiro______________, 0088, 005, 0, parameters[0088], '0');     // Número do CEP
                 reg.Adicionar(TTiposDadoEDI.ediInteiro______________, 0093, 003, 0, parameters[0093], '0');     // Sufixo do CEP
@@ -1146,7 +1146,7 @@ namespace Pagamento2Net.Bancos
             {
                 if (barcode.Length == 44) // Código de barras
                 {
-                    digitoVerificador = CalculoDigitoVerificarMódulo11(barcode);
+                    digitoVerificador = barcode.Substring(4, 1);
                     fatorDeVencimento = barcode.Substring(5, 4);
                     campoLivre = barcode.Substring(19, 25);
                     carteira = barcode.Substring(23, 2);
@@ -1159,7 +1159,7 @@ namespace Pagamento2Net.Bancos
                 else if (barcode.Length == 47) // Linha digitável
                 {
                     campoLivre = barcode.Substring(5, 34);
-                    digitoVerificador = CalculoDigitoVerificarMódulo11(barcode);
+                    digitoVerificador = barcode.Substring(32, 1);
                     fatorDeVencimento = barcode.Substring(33, 4);
                     carteira = barcode.Substring(8, 1) + barcode.Substring(10, 1);
                     agenciaFavorecido = barcode.Substring(4, 3);
@@ -1177,7 +1177,7 @@ namespace Pagamento2Net.Bancos
             {
                 if (barcode.Length == 44) // Código de barras
                 {
-                    digitoVerificador = CalculoDigitoVerificarMódulo11(barcode);
+                    digitoVerificador = barcode.Substring(4, 1);
                     fatorDeVencimento = barcode.Substring(5, 4);
                     campoLivre = barcode.Substring(19, 25);
                     carteira = Empty;
@@ -1189,9 +1189,9 @@ namespace Pagamento2Net.Bancos
                 }
                 else if (barcode.Length == 47) // Linha digitável
                 {
-                    digitoVerificador = CalculoDigitoVerificarMódulo11(barcode);
-                    fatorDeVencimento = barcode.Substring(33, 4);
                     campoLivre = barcode.Substring(4, 5) + barcode.Substring(10, 10) + barcode.Substring(21, 10);
+                    digitoVerificador = barcode.Substring(32, 1);
+                    fatorDeVencimento = barcode.Substring(33, 4);
                     carteira = Empty;
                     agenciaFavorecido = Empty;
                     codigoAgencia = Empty;
@@ -1211,7 +1211,7 @@ namespace Pagamento2Net.Bancos
         /// </summary>
         /// <param name="chaveAcesso"></param>
         /// <returns></returns>
-        public static string CalculoDigitoVerificarMódulo11(string chaveAcesso)
+        public static string CalculoDigitoVerificadorMódulo11(string chaveAcesso)
         {
 
             // O peso é o multiplicador da expressão, deve ser somente de 2 à 9, então já iniciamos com 2.
@@ -1238,7 +1238,7 @@ namespace Pagamento2Net.Bancos
 
                 };
 
-                var restoDivisao = soma % 11;
+                var restoDivisao = soma % dividendo;
                 var result = Empty;
 
                 //Quando o resto da divisão for igual a 0(zero), 1 (um) ou maior que 9 (nove), 
