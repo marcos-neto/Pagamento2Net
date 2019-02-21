@@ -1168,9 +1168,9 @@ namespace Pagamento2Net.Bancos
                     campoLivre = barcode.Substring(19, 25);
                     carteira = barcode.Substring(23, 2);
                     agenciaFavorecido = barcode.Substring(19, 3);
-                    codigoAgencia = barcode.Substring(22, 1);
+                    codigoAgencia = CalculoDigitoVerificadorMódulo11(agenciaFavorecido, 7); //barcode.Substring(22, 1);
                     contaFavorecido = barcode.Substring(36, 6);
-                    codigoConta = barcode.Substring(42, 1);
+                    codigoConta = CalculoDigitoVerificadorMódulo11(contaFavorecido, 7); //barcode.Substring(42, 1);
                     nossoNumero = barcode.Substring(25, 11);
                 }
                 else if (barcode.Length == 47) // Linha digitável
@@ -1179,10 +1179,10 @@ namespace Pagamento2Net.Bancos
                     digitoVerificador = barcode.Substring(32, 1);
                     fatorDeVencimento = barcode.Substring(33, 4);
                     carteira = barcode.Substring(8, 1) + barcode.Substring(10, 1);
-                    agenciaFavorecido = barcode.Substring(4, 3);
-                    codigoAgencia = barcode.Substring(7, 1);
+                    agenciaFavorecido = barcode.Substring(4, 4);
+                    codigoAgencia = CalculoDigitoVerificadorMódulo11(agenciaFavorecido, 7); //barcode.Substring(7, 1);
                     contaFavorecido = barcode.Substring(24, 6);
-                    codigoConta = barcode.Substring(30, 1);
+                    codigoConta = CalculoDigitoVerificadorMódulo11(contaFavorecido, 7);// barcode.Substring(30, 1);
                     nossoNumero = barcode.Substring(11, 9) + barcode.Substring(21, 2);
                 }
                 else
