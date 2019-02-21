@@ -236,11 +236,9 @@ namespace Pagamento2Net.Bancos
         }
 
         /// <summary>
-        /// Geração do registro do Segmento A
-        /// Crédito em Conta Corrente, Crédito em Conta Poupança, DOC, TED, Caixa e OP(Recibo)
+        /// Geração dos detalhes do arquivo de remessa Bradesco
         /// </summary>
         /// <param name="documento"></param>
-        /// <param name="loteServico"></param>
         /// <param name="numeroRegistroLote"></param>
         /// <param name="numeroRegistroGeral"></param>
         /// <returns></returns>
@@ -476,6 +474,10 @@ namespace Pagamento2Net.Bancos
             }
         }
 
+        #endregion Geração do arquivo
+
+        #region Geração dos tipos de pagamento
+
         /// <summary>
         /// 01 - CRÉDITO EM CONTA-CORRENTE OU POUPANÇA
         /// </summary>
@@ -596,13 +598,13 @@ namespace Pagamento2Net.Bancos
                     break;
             }
 
-            parameters[0375] = 000000; // Número do DOC/TED
+            parameters[0375] = "000000"; // Número do DOC/TED
 
             if (documento is Transferencia)
             {
                 Transferencia transferência = documento as Transferencia;
 
-                parameters[0381] = ((int)transferência.FinalidadeDocTed).ToString("00"); // Finalidade do DOC/TED
+                parameters[0381] = ((int)transferência.FinalidadeDocTed).ToString(); // Finalidade do DOC/TED
             }
 
             parameters[0383] = ((int)documento.Favorecido.ContaFinanceira.TipoConta).ToString("00"); // Tipo de Conta
@@ -653,12 +655,28 @@ namespace Pagamento2Net.Bancos
             parameters[0191] = fatorDeVencimento;                                   // Fator de Vencimento
 
 
-            //if (documento.TipoDeMovimento == TipoMovimentoEnum.Inclusao)
-            //{
-                parameters[0289] = (int)documento.TipoDeMovimento;                // Tipo de Movimento
-            //}
+            parameters[0289] = (int)documento.TipoDeMovimento;                // Tipo de Movimento
 
-            parameters[0374] = String.Concat(new string(' ', 25), new string('0', 15)); // Informações Complementares
+
+
+
+
+            parameters[391] = contaFavorecido; //conta corrente
+            parameters[398] = "0";
+            parameters[399] = digitoVerificador;
+            parameters[400] = codigoMoeda; //Código Moeda
+
+
+
+            // Informações Complementares
+            parameters[0374] = String.Concat(
+                agenciaFavorecido.PadLeft(4, '0'),      //Posições 374 - 377 (4)
+                carteira.PadLeft(2, '0'),               //Posições 378 a 379 (2)
+                nossoNumero.PadLeft(11, '0'),           //Posições 380 a 390 (11)
+                contaFavorecido.PadLeft(7, '0'),        //Posições 391 a 397 (7)
+                new string('0', 1), //zero fixo         //Posições 398 a 398 (1)
+                digitoVerificador.PadLeft(1, '0'),      //Posições 399 a 399 (1)
+                codigoMoeda.PadLeft(1, '0'));           //Posições 400 a 400 (1)
 
             // Tipo de Conta do Fornecedor - Apenas usado para a modalidade 1
             parameters[0479] = Empty;
@@ -722,8 +740,7 @@ namespace Pagamento2Net.Bancos
             parameters[0480] = documento.Favorecido.ContaFinanceira.ContaComplementar; // Conta complementar
         }
 
-        #endregion Geração do arquivo
-
+        #endregion
 
         #endregion IRemessaPagamento
 
@@ -1211,7 +1228,7 @@ namespace Pagamento2Net.Bancos
         /// </summary>
         /// <param name="chaveAcesso"></param>
         /// <returns></returns>
-        public static string CalculoDigitoVerificadorMódulo11(string chaveAcesso)
+        public static string CalculoDigitoVerificadorMódulo11(string chaveAcesso, int valorBase)
         {
 
             // O peso é o multiplicador da expressão, deve ser somente de 2 à 9, então já iniciamos com 2.
@@ -1234,7 +1251,7 @@ namespace Pagamento2Net.Bancos
                     // Acumula valores da soma gerada das multiplicações (peso).
                     soma += (Convert.ToInt32(item.ToString()) * peso);
                     // Como o peso pode ir somente até 9 é feito essa validação.
-                    peso = (peso == 9) ? 2 : peso + 1;
+                    peso = (peso == valorBase) ? 2 : peso + 1;
 
                 };
 
