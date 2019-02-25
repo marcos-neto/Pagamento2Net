@@ -373,5 +373,62 @@ namespace Boleto2Net.Util
             Regex rgx = new Regex(pattern);
             return rgx.Replace(text, replacement);
         }
+
+        /// <summary>
+        /// Cálculo do módulo 11
+        /// </summary>
+        /// <param name="chaveAcesso"></param>
+        /// <returns></returns>
+        public static string CalculoDigitoVerificadorMódulo11(string chaveAcesso, int valorBase)
+        {
+
+            // O peso é o multiplicador da expressão, deve ser somente de 2 à 9, então já iniciamos com 2.
+            int peso = 2;
+            // Somatória do resultado.
+            int soma = 0;
+
+            //Dividendo da operação
+            int dividendo = 11;
+
+            try
+            {
+                // Passa número a número da chave pegando da direita pra esquerda (pra isso o Reverse()).
+                var arrayReverse = chaveAcesso.ToCharArray()
+                    .Reverse()
+                    .ToList();
+
+                foreach (var item in arrayReverse)
+                {
+                    // Acumula valores da soma gerada das multiplicações (peso).
+                    soma += (Convert.ToInt32(item.ToString()) * peso);
+                    // Como o peso pode ir somente até 9 é feito essa validação.
+                    peso = (peso == valorBase) ? 2 : peso + 1;
+
+                };
+
+                var restoDivisao = soma % dividendo;
+                var result = string.Empty;
+
+                //Quando o resto da divisão for igual a 0(zero), 1 (um) ou maior que 9 (nove), 
+                //o dígito do código de barras obrigatoriamente deverá ser igual a 1 (um).
+                if (restoDivisao <= 1 || restoDivisao > 9)
+                {
+                    result = "1";
+                }
+                else
+                {
+                    //Quando o resto da divisão for diferente de 0(zero), 1(um) ou maior que 9(nove), 
+                    //efetuar a subtração entre dividendo e o resto, cujo resultado será o dígito verificador do código de barras.
+                    result = (dividendo - restoDivisao).ToString();
+                }
+
+                return result;
+            }
+            catch
+            {
+                return "ERRO: A chave de acesso deve conter apenas números.";
+            }
+        }
+
     }
 }

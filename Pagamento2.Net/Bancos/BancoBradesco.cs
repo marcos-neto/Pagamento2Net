@@ -604,7 +604,7 @@ namespace Pagamento2Net.Bancos
             {
                 Transferencia transferência = documento as Transferencia;
 
-                parameters[0381] = ((int)transferência.FinalidadeDocTed).ToString(); // Finalidade do DOC/TED
+                parameters[0381] = ((int)transferência.FinalidadeDocTed).ToString("00"); // Finalidade do DOC/TED
             }
 
             parameters[0383] = ((int)documento.Favorecido.ContaFinanceira.TipoConta).ToString("00"); // Tipo de Conta
@@ -1168,9 +1168,9 @@ namespace Pagamento2Net.Bancos
                     campoLivre = barcode.Substring(19, 25);
                     carteira = barcode.Substring(23, 2);
                     agenciaFavorecido = barcode.Substring(19, 3);
-                    codigoAgencia = CalculoDigitoVerificadorMódulo11(agenciaFavorecido, 7); //barcode.Substring(22, 1);
+                    codigoAgencia = Utils.CalculoDigitoVerificadorMódulo11(agenciaFavorecido, 7); //barcode.Substring(22, 1);
                     contaFavorecido = barcode.Substring(36, 6);
-                    codigoConta = CalculoDigitoVerificadorMódulo11(contaFavorecido, 7); //barcode.Substring(42, 1);
+                    codigoConta = Utils.CalculoDigitoVerificadorMódulo11(contaFavorecido, 7); //barcode.Substring(42, 1);
                     nossoNumero = barcode.Substring(25, 11);
                 }
                 else if (barcode.Length == 47) // Linha digitável
@@ -1180,9 +1180,9 @@ namespace Pagamento2Net.Bancos
                     fatorDeVencimento = barcode.Substring(33, 4);
                     carteira = barcode.Substring(8, 1) + barcode.Substring(10, 1);
                     agenciaFavorecido = barcode.Substring(4, 4);
-                    codigoAgencia = CalculoDigitoVerificadorMódulo11(agenciaFavorecido, 7); //barcode.Substring(7, 1);
+                    codigoAgencia = Utils.CalculoDigitoVerificadorMódulo11(agenciaFavorecido, 7); //barcode.Substring(7, 1);
                     contaFavorecido = barcode.Substring(24, 6);
-                    codigoConta = CalculoDigitoVerificadorMódulo11(contaFavorecido, 7);// barcode.Substring(30, 1);
+                    codigoConta = Utils.CalculoDigitoVerificadorMódulo11(contaFavorecido, 7);// barcode.Substring(30, 1);
                     nossoNumero = barcode.Substring(11, 9) + barcode.Substring(21, 2);
                 }
                 else
@@ -1220,62 +1220,6 @@ namespace Pagamento2Net.Bancos
                 {
                     throw new Exception($"Código de barras ou linha digitável em formato incorreto: {barcode}");
                 }
-            }
-        }
-
-        /// <summary>
-        /// Cálculo do módulo 11
-        /// </summary>
-        /// <param name="chaveAcesso"></param>
-        /// <returns></returns>
-        public static string CalculoDigitoVerificadorMódulo11(string chaveAcesso, int valorBase)
-        {
-
-            // O peso é o multiplicador da expressão, deve ser somente de 2 à 9, então já iniciamos com 2.
-            int peso = 2;
-            // Somatória do resultado.
-            int soma = 0;
-
-            //Dividendo da operação
-            int dividendo = 11;
-
-            try
-            {
-                // Passa número a número da chave pegando da direita pra esquerda (pra isso o Reverse()).
-                var arrayReverse = chaveAcesso.ToCharArray()
-                    .Reverse()
-                    .ToList();
-
-                foreach (var item in arrayReverse)
-                {
-                    // Acumula valores da soma gerada das multiplicações (peso).
-                    soma += (Convert.ToInt32(item.ToString()) * peso);
-                    // Como o peso pode ir somente até 9 é feito essa validação.
-                    peso = (peso == valorBase) ? 2 : peso + 1;
-
-                };
-
-                var restoDivisao = soma % dividendo;
-                var result = Empty;
-
-                //Quando o resto da divisão for igual a 0(zero), 1 (um) ou maior que 9 (nove), 
-                //o dígito do código de barras obrigatoriamente deverá ser igual a 1 (um).
-                if (restoDivisao <= 1 || restoDivisao > 9)
-                {
-                    result = "1";
-                }
-                else
-                {
-                    //Quando o resto da divisão for diferente de 0(zero), 1(um) ou maior que 9(nove), 
-                    //efetuar a subtração entre dividendo e o resto, cujo resultado será o dígito verificador do código de barras.
-                    result = (dividendo - restoDivisao).ToString();
-                }
-
-                return result;
-            }
-            catch
-            {
-                return "ERRO: A chave de acesso deve conter apenas números.";
             }
         }
         #endregion Utils
