@@ -113,11 +113,12 @@ namespace Pagamento2Net.Bancos
         /// <param name="numeroRegistroLote"></param>
         /// <param name="numeroRegistroGeral"></param>
         /// <returns></returns>
-        public string GerarDetalheRemessaPagamento(TipoArquivo tipoArquivo, Documento documento, TipoPagamentoEnum tipoPagamento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral)
+        public IList<string> GerarDetalheRemessaPagamento(TipoArquivo tipoArquivo, Documento documento, TipoPagamentoEnum tipoPagamento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral)
         {
             try
             {
                 string strline = Empty;
+                List<string> result = new List<string>();
                 switch (tipoArquivo)
                 {
                     case TipoArquivo.CNAB240:
@@ -132,6 +133,9 @@ namespace Pagamento2Net.Bancos
                             {
                                 throw new Exception("Registro Segmento obrigatório.");
                             }
+
+                            result.Add(Utils.FormataLinhaArquivoCNAB(strline, tipoArquivo));
+
                         }
 
                         break;
@@ -140,7 +144,7 @@ namespace Pagamento2Net.Bancos
                         throw new Exception("Santander - Header Lote - Tipo de arquivo inexistente.");
                 }
 
-                return Utils.FormataLinhaArquivoCNAB(strline, tipoArquivo);
+                return result;
             }
             catch (Exception ex)
             {
@@ -253,7 +257,7 @@ namespace Pagamento2Net.Bancos
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0033, 020, 0, pagador.CódigoConvênio, '0');                   //  Código do Convenio no Banco
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0053, 005, 0, pagador.ContaFinanceira.Agência, '0');          //  Agência Mantenedora da Conta
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0058, 001, 0, pagador.ContaFinanceira.DígitoAgência, ' ');    //  Dígito Verificador da Agência
-                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0059, 012, 0, pagador.ContaFinanceira.Conta, ' ');            //  Número da Conta Corrente
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0059, 012, 0, pagador.ContaFinanceira.Conta, '0');            //  Número da Conta Corrente
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0071, 001, 0, pagador.ContaFinanceira.DígitoConta, ' ');      //  Dígito Verificador da Conta
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0072, 001, 0, Empty, ' ');                                    //  Dígito Verificador da Agência / Conta
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0073, 030, 0, pagador.Nome.Trim().ToUpper(), ' ');            //  Nome da Empresa
@@ -297,7 +301,7 @@ namespace Pagamento2Net.Bancos
                 numeroRegistroGeral++; //Incrementa +1 registro ao contador de registros geral
                 numeroRegistrosLote++; //Incrementa +1 registro ao contador de registros do lote
                 loteServico++; //Incrementa +1 ao numero de lotes do arquivo
-                int versãoLayout;
+                int versãoLote;
 
                 switch (tipoPagamento)
                 {
@@ -311,12 +315,12 @@ namespace Pagamento2Net.Bancos
                     case TipoPagamentoEnum.IpvaSp:
                     case TipoPagamentoEnum.LicenciamentoSp:
                     case TipoPagamentoEnum.DpvatSp:
-                        versãoLayout = 10;
+                        versãoLote = 10;
                         break;
 
                     case TipoPagamentoEnum.LiquidacaoTitulosMesmoBanco:
                     case TipoPagamentoEnum.LiquidacaoTitulosOutrosBancos:
-                        versãoLayout = 30;
+                        versãoLote = 30;
                         break;
 
                     case TipoPagamentoEnum.CreditoContaCorrente:
@@ -327,7 +331,7 @@ namespace Pagamento2Net.Bancos
                     case TipoPagamentoEnum.OrdemPagamento:
                     case TipoPagamentoEnum.Caixa:
                     default:
-                        versãoLayout = 31;
+                        versãoLote = 31;
                         break;
                 }
 
@@ -338,7 +342,7 @@ namespace Pagamento2Net.Bancos
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0009, 001, 0, tipoOperacao, ' ');                             //  Tipo da Operação
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0010, 002, 0, tipoServico, '0');                              //  Tipo de Serviço
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0012, 002, 0, (int)tipoPagamento, '0');                       //  Forma de Lançamento
-                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0014, 003, 0, versãoLayout, '0');                             //  Número da Versão do Lote
+                reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0014, 003, 0, versãoLote, '0');                               //  Número da Versão do Lote
                 reg.Adicionar(TTiposDadoEDI.ediAlphaAliEsquerda_____, 0017, 001, 0, Empty, ' ');                                    //  Branco
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0018, 001, 0, pagador.TipoNúmeroCadastro("0"), '0');          //  Tipo de Inscrição da Empresa
                 reg.Adicionar(TTiposDadoEDI.ediNumericoSemSeparador_, 0019, 014, 0, pagador.NúmeroCadastroSomenteNúmeros(), '0');   //  Número de Inscrição da Empresa

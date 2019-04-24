@@ -1,6 +1,7 @@
 ﻿using Boleto2Net.Util;
 using Pagamento2Net.Entidades;
 using Pagamento2Net.Enums;
+using System.Collections.Generic;
 
 namespace Pagamento2Net
 {
@@ -10,7 +11,7 @@ namespace Pagamento2Net
 
         string GerarHeaderLoteRemessaPagamento(TipoArquivo tipoArquivo, Pagador pagador, TipoPagamentoEnum tipoPagamento, ref int loteServico, string tipoServico, int numeroArquivoRemessa, ref int numeroRegistrosLote, ref int numeroRegistroGeral);
 
-        string GerarDetalheRemessaPagamento(TipoArquivo tipoArquivo, Documento documento, TipoPagamentoEnum tipoPagamento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral);
+        IList<string> GerarDetalheRemessaPagamento(TipoArquivo tipoArquivo, Documento documento, TipoPagamentoEnum tipoPagamento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral);
 
         string GerarTrailerLoteRemessaPagamento(TipoArquivo tipoArquivo, int loteServico, int numeroRegistrosLote, decimal valorTotalRegistrosLote, ref int numeroRegistroGeral);
 

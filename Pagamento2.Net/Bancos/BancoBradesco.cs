@@ -77,11 +77,12 @@ namespace Pagamento2Net.Bancos
         /// <param name="numeroRegistroLote"></param>
         /// <param name="numeroRegistroGeral"></param>
         /// <returns></returns>
-        public string GerarDetalheRemessaPagamento(TipoArquivo tipoArquivo, Documento documento, TipoPagamentoEnum tipoPagamento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral)
+        public IList<string> GerarDetalheRemessaPagamento(TipoArquivo tipoArquivo, Documento documento, TipoPagamentoEnum tipoPagamento, ref int loteServico, ref int numeroRegistroLote, ref int numeroRegistroGeral)
         {
             try
             {
                 string strline = Empty;
+                List<string> result = new List<string>();
                 switch (tipoArquivo)
                 {
                     case TipoArquivo.POS500:
@@ -91,12 +92,15 @@ namespace Pagamento2Net.Bancos
                     default:
                         throw new Exception("Bradesco - Header Lote - Tipo de arquivo inexistente.");
                 }
+
                 if (String.IsNullOrWhiteSpace(strline))
                 {
                     throw new Exception("Registro Segmento obrigatório.");
                 }
 
-                return Utils.FormataLinhaArquivoCNAB(strline, tipoArquivo);
+                result.Add(Utils.FormataLinhaArquivoCNAB(strline, tipoArquivo));
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -961,7 +965,7 @@ namespace Pagamento2Net.Bancos
             titulo.NúmeroDocumentoBanco = registro.Substring(138, 12);
 
             // Data de Vencimento 166 A 173(008) DDMMAAAA
-            titulo.DataDoVencimento = Utils.ToDateTime(Utils.ToInt32(registro.Substring(165, 8)).ToString("##-##-####"));
+            titulo.DataDoVencimento = Utils.ToDateTime(Utils.ToInt32(registro.Substring(165, 8)).ToString("####-##-##"));
 
             // Valor do Documento 195 A 204 (010) Opcional
             titulo.ValorDoDocumento = Convert.ToDecimal(registro.Substring(194, 10));
@@ -979,7 +983,7 @@ namespace Pagamento2Net.Bancos
             titulo.TipoDePagamento = (TipoPagamentoEnum)Enum.Parse(typeof(TipoPagamentoEnum), registro.Substring(263, 2));
 
             // Data para efetivação do pagamento (Retorno) 266 A 273(008) DDMMAAAA
-            titulo.DataDoPagamento = Utils.ToDateTime(Utils.ToInt32(registro.Substring(265, 8)).ToString("##-##-####"));
+            titulo.DataDoPagamento = Utils.ToDateTime(Utils.ToInt32(registro.Substring(265, 8)).ToString("####-##-##"));
 
             // Tipo de Movimento 289 A 289(001)
             titulo.TipoDeMovimento = (TipoMovimentoEnum)Enum.Parse(typeof(TipoMovimentoEnum), registro.Substring(288, 1));
@@ -1070,7 +1074,7 @@ namespace Pagamento2Net.Bancos
             transferencia.NúmeroDocumentoBanco = registro.Substring(138, 12);
 
             // Data de Vencimento 166 A 173(008) DDMMAAAA
-            transferencia.DataDoVencimento = Utils.ToDateTime(Utils.ToInt32(registro.Substring(165, 8)).ToString("##-##-####"));
+            transferencia.DataDoVencimento = Utils.ToDateTime(Utils.ToInt32(registro.Substring(165, 8)).ToString("####-##-##"));
 
             // Valor do Documento 195 A 204 (010) Opcional
             transferencia.ValorDoDocumento = Convert.ToDecimal(registro.Substring(194, 10)) / 100;
@@ -1088,7 +1092,7 @@ namespace Pagamento2Net.Bancos
             transferencia.TipoDePagamento = (TipoPagamentoEnum)Enum.Parse(typeof(TipoPagamentoEnum), registro.Substring(263, 2));
 
             // Data para efetivação do pagamento (Retorno) 266 A 273(008) DDMMAAAA
-            transferencia.DataDoPagamento = Utils.ToDateTime(Utils.ToInt32(registro.Substring(265, 8)).ToString("##-##-####"));
+            transferencia.DataDoPagamento = Utils.ToDateTime(Utils.ToInt32(registro.Substring(265, 8)).ToString("####-##-##"));
 
             // Tipo de Movimento 289 A 289(001)
             transferencia.TipoDeMovimento = (TipoMovimentoEnum)Enum.Parse(typeof(TipoMovimentoEnum), registro.Substring(288, 1));

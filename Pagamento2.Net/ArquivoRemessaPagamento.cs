@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Pagamento2Net
 {
@@ -133,16 +134,31 @@ namespace Pagamento2Net
                     valorTotalRegistrosLote += documento.ValorDoPagamento;
                     valorTotalRegistrosArquivo += documento.ValorDoPagamento;
 
-                    // geração dos detalhes (segmentos)
-                    arquivoRemessa.WriteLine(
-                         Utils.RemoveCharactersEspeciais(Banco.GerarDetalheRemessaPagamento(
+                    IList<string> detalheLote = Banco.GerarDetalheRemessaPagamento(
                             tipoArquivo: TipoArquivo,
                             documento: documento,
                             tipoPagamento: lote.TipoPagamento,
                             loteServico: ref loteDeServico,
                             numeroRegistroLote: ref numeroRegistrosLote,
                             numeroRegistroGeral: ref numeroRegistrosGeral
-                        )));
+                        );
+
+                    foreach (string detalhe in detalheLote)
+                    {
+                        arquivoRemessa.WriteLine(
+                         Utils.RemoveCharactersEspeciais(detalhe));
+                    }
+
+                    //// geração dos detalhes (segmentos)
+                    //arquivoRemessa.WriteLine(
+                    //     Utils.RemoveCharactersEspeciais(Banco.GerarDetalheRemessaPagamento(
+                    //        tipoArquivo: TipoArquivo,
+                    //        documento: documento,
+                    //        tipoPagamento: lote.TipoPagamento,
+                    //        loteServico: ref loteDeServico,
+                    //        numeroRegistroLote: ref numeroRegistrosLote,
+                    //        numeroRegistroGeral: ref numeroRegistrosGeral
+                    //    )));
                 }
 
                 // geração do trailer do lote
